@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stroke Prediction</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 50px;
+        }
+
+        h1, h3 {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        input[type="submit"] {
+            margin-top: 15px;
+        }
+
+        .prediction-result {
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+            color: red;
+            font-size: 1.5em;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-custom {
+            role: progressbar;
+            aria-valuemin: 0;
+            aria-valuemax: 100;
+        }
+    </style>
+</head>
+<body>
+<h1>Flower Recognition</h1>
+<div class="container">
+    <h3 style="margin-top: 90px">Upload an image of a flower</h3>
+    <form method="POST" action="/predict" enctype="multipart/form-data">
+        <div class="form-group">
+            <div class="custom-file mb-3">
+    <input type="file" class="custom-file-input" id="customFile" name="file" accept="image/*" onchange="loadFile(event)">
+    <label class="custom-file-label" for="customFile">Choose file</label>
+</div>
+<img id="output" width="200"/>
+        </div>
+        <input style="margin-bottom: 20px" type="submit" value="Recognize" class="btn btn-primary">
+    </form>
+    {% if prediction %}
+    {% for class, percentage in prediction.items() %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ class }}</h5>
+            <p class="card-text">{{ "%.2f" | format(percentage) }}%</p>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar"
+                     style="width: {% if percentage %}{{ " %.2f" | format(percentage) }}{% else %}0{% endif %}%;"
+                aria-valuenow="{% if percentage %}{{ "%.2f" | format(percentage) }}{% else %}0{% endif %}"
+                aria-valuemin="0" aria-valuemax="100">
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Update the label text with the selected file name
+    $('.custom-file-input').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    });
+
+    // Display the selected image
+    var loadFile = function(event) {
+        var output = document.getElementById('output');
+        output.src = URL.createObjectURL(event.target.files[0]);
+        output.onload = function() {
+            URL.revokeObjectURL(output.src) // free memory
+        }
+    };
+</script>
+</body>
+</html>
